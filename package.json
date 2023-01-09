@@ -1,9 +1,8 @@
 {
-  "name": "reveal.js",
+  "name": "KP",
   "version": "4.4.0",
-  "description": "The HTML Presentation Framework",
-  "homepage": "https://revealjs.com",
-  "subdomain": "revealjs",
+  "description": "The HTML presentation for KP",
+  "homepage": "https://cyberhck.github.io/kp-presentation",
   "main": "dist/reveal.js",
   "module": "dist/reveal.esm.js",
   "license": "MIT",
@@ -13,13 +12,12 @@
     "build": "gulp build"
   },
   "author": {
-    "name": "Hakim El Hattab",
-    "email": "hakim.elhattab@gmail.com",
-    "web": "https://hakim.se"
+    "name": "cyberhck",
+    "email": "kp-presentation@cyberhck.dev"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/hakimel/reveal.js.git"
+    "url": "git://github.com/cyberhck/kp-presentation"
   },
   "engines": {
     "node": ">=10.0.0"
