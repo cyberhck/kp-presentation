@@ -1,40 +1,438 @@
 <!doctype html>
-<html>
-	<head>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<html lang="en">
 
-		<title>reveal.js</title>
+<head>
+	<meta charset="utf-8">
 
-		<link rel="stylesheet" href="dist/reset.css">
-		<link rel="stylesheet" href="dist/reveal.css">
-		<link rel="stylesheet" href="dist/theme/black.css">
+	<title>KP | Kafka Processor</title>
+	<link rel="icon" href="https://raw.githubusercontent.com/honestbank/kp/main/docs/static/img/logo.svg">
 
-		<!-- Theme used for syntax highlighted code -->
-		<link rel="stylesheet" href="plugin/highlight/monokai.css">
-	</head>
-	<body>
-		<div class="reveal">
-			<div class="slides">
-				<section>Slide 1</section>
-				<section>Slide 2</section>
-			</div>
-		</div>
+	<meta name="description" content="A presentation on KP">
+	<meta name="author" content="Nishchal Gautam">
 
-		<script src="dist/reveal.js"></script>
-		<script src="plugin/notes/notes.js"></script>
-		<script src="plugin/markdown/markdown.js"></script>
-		<script src="plugin/highlight/highlight.js"></script>
-		<script>
-			// More info about initialization & config:
-			// - https://revealjs.com/initialization/
-			// - https://revealjs.com/config/
-			Reveal.initialize({
-				hash: true,
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-				// Learn about plugins: https://revealjs.com/plugins/
-				plugins: [ RevealMarkdown, RevealHighlight, RevealNotes ]
-			});
-		</script>
-	</body>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<link rel="stylesheet" href="dist/reset.css">
+	<link rel="stylesheet" href="dist/reveal.css">
+	<link rel="stylesheet" href="dist/theme/solarized.css" id="theme">
+
+	<!-- Theme used for syntax highlighting of code -->
+	<link rel="stylesheet" href="plugin/highlight/monokai.css" id="highlight-theme">
+</head>
+
+<body>
+
+<div class="reveal">
+
+	<!-- Any section element inside of this container is displayed as a slide -->
+	<div class="slides">
+		<section>
+			<aside class="notes">
+				Acknowledge your speaking speed, also let people know they can ask questions at any point & they can speak and don't need to raise hand
+			</aside>
+			<a href="https://honestbank.github.io/kp">
+				<img src="https://raw.githubusercontent.com/honestbank/kp/main/docs/static/img/logo.svg" alt="KP logo"
+					 style="height: 180px; margin: 0 auto 4rem auto; background: transparent;" class="demo-logo">
+			</a>
+			<h3>Kafka made easy with KP</h3>
+			<p>
+				<small><a href="https://honestbank.github.io/kp">https://honestbank.github.io/kp</a></small>
+			</p>
+		</section>
+		<section>
+			<h2>About myself</h2>
+			<p>Backend engineer @ Honest</p>
+			<small>github.com/cyberhck</small>
+			<small>twitter.com/cyb3rhck</small>
+			<br>
+			<small>random@cyberhck.dev</small>
+		</section>
+
+		<section>
+			<h2>Objectives</h2>
+			<aside class="notes">
+				Now production ready is very subjective, you'll have different requirements, but we'll show you as close to as we can get.
+			</aside>
+			<p>
+				We'll try and create a production* ready consumer while keeping the code <strong>dead simple</strong>.
+			</p>
+		</section>
+
+		<section>
+			<h2>What makes a consumer production ready?</h2>
+			<aside class="notes">
+				Speak slow
+			</aside>
+			<ul>
+				<li class="fragment">Instrumentation</li>
+				<li class="fragment">Tracing?</li>
+				<li class="fragment">Retries</li>
+				<li class="fragment">Deadletters</li>
+				<li class="fragment">Backoffs</li>
+				<li class="fragment">Heartbeat?</li>
+				<li class="fragment">Parallelization?</li>
+				<li class="fragment">...</li>
+			</ul>
+		</section>
+
+		<section>
+			<h2>Core Concepts</h2>
+			<section>
+				<aside class="notes">
+					Speak slow
+				</aside>
+				<p>The core of kp is basically a middleware processing pipeline.</p>
+			</section>
+			<section>
+				<p>Each middleware instance has a responsibility.</p>
+			</section>
+			<section>
+				<p>You configure how they're supposed to work.</p>
+			</section>
+			<section>
+				<p>KP comes with handful of middleware out of the box, but you're <strong>encouraged</strong> to write your own if you need to.</p>
+			</section>
+		</section>
+		<section>
+			<h1>Usage</h1>
+		</section>
+		<section data-auto-animate>
+			<section data-auto-animate>
+				<h3 data-id="code-title">Initialize configuration</h3>
+				<pre data-id="code-animation"><code class="hljs" data-trim data-line-numbers="4|8-16">
+						package main
+
+						import (
+							"github.com/honestbank/kp/v2/config"
+						)
+
+						func main() {
+							kpConfig := config.KPConfig{
+								KafkaConfig: config.Kafka{
+									BootstrapServers:  "localhost",
+									ConsumerGroupName: "example-tests",
+								},
+								SchemaRegistryConfig: config.SchemaRegistry{
+									Endpoint: "http://localhost:8081",
+								},
+							}
+						}
+					</code></pre>
+			</section>
+			<section data-auto-animate>
+				<aside class="notes">What do you think it does?</aside>
+				<h3 data-id="code-title">Initialize a processor</h3>
+				<pre data-id="code-animation"><code class="hljs" data-trim data-line-numbers="12-15">
+						package main
+
+						import (
+							"time"
+
+							"github.com/honestbank/kp"
+							"github.com/honestbank/kp/v2/config"
+						)
+
+						func main() {
+							kpConfig := config.KPConfig{...}
+							processor := v2.New[kafka.Message]()
+							processor.Run(func(ctx context.Context, ev *kafka.Message) error {
+								fmt.Printf("got message at: %s", time.Now().Format(time.RFC3339))
+							})
+						}
+					</code></pre>
+				<p class="fragment">Nothing!</p>
+			</section>
+			<section>
+				<h3>Making it retrieve messages from kafka</h3>
+				<aside class="notes">
+					While KP comes with kafka consumer, we can use something else if we wanted to.
+				</aside>
+				<pre data-id="code-animation"><code class="hljs" data-trim data-line-numbers="21-30|16">
+						package main
+
+						import (
+							"time"
+
+							"github.com/honestbank/kp"
+							"github.com/honestbank/kp/v2/config"
+							"github.com/honestbank/kp/v2/middlewares"
+							consumerMiddleware "github.com/honestbank/kp/v2/middlewares/consumer"
+							"github.com/honestbank/kp/v2/consumer"
+						)
+
+						func main() {
+							kpConfig := config.KPConfig{...}
+							processor := v2.New[kafka.Message]()
+							processor.AddMiddleware(getConsumerMiddleware())
+							processor.Run(func(ctx context.Context, ev *kafka.Message) error {
+								fmt.Printf("processing message at: %s", time.Now().Format(time.RFC3339))
+							})
+						}
+						func getConsumerMiddleware() middlewares.KPMiddleware[kafka.Message] {
+							topicsToConsume := []string{
+								"user-logged-in",
+								"user-logged-in-rewards-processor-retry"
+							}
+							c, err := consumer.New(topicsToConsume, getCfg())
+							// handle error
+							consumerMw := consumerMiddleware.NewConsumerMiddleware(c)
+							return consumerMw
+						}
+					</code></pre>
+				<p class="fragment">Now we're consuming messages.</p>
+			</section>
+			<section>
+				<h3>Business needs you to add retries and deadletters</h3>
+				<aside class="notes">
+					Order of the middlewares are extremely important
+				</aside>
+				<pre class="fragment" data-id="code-animation"><code class="hljs" data-trim data-line-numbers="26-38|19-21">
+						package main
+
+						import (
+							"time"
+
+							"github.com/honestbank/kp"
+							"github.com/honestbank/kp/v2/config"
+							"github.com/honestbank/kp/v2/middlewares"
+							consumerMiddleware "github.com/honestbank/kp/v2/middlewares/consumer"
+							"github.com/honestbank/kp/v2/middlewares/retry"
+							"github.com/honestbank/kp/v2/middlewares/deadletter"
+							"github.com/honestbank/kp/v2/consumer"
+						)
+
+						func main() {
+							kpConfig := config.KPConfig{...}
+							processor := v2.New[kafka.Message]()
+							processor.AddMiddleware(getConsumerMiddleware())
+							retryMw, dltMw := getRetryAndDLTMiddleware()
+							processor.AddMiddleware(retryMw)
+							processor.AddMiddleware(dltMw)
+							processor.Run(func(ctx context.Context, ev *kafka.Message) error {
+								fmt.Printf("processing message at: %s", time.Now().Format(time.RFC3339))
+							})
+						}
+						func getRetryAndDLTMiddleware() (middlewares.KPMiddleware[kafka.Message], middlewares.KPMiddleware[kafka.Message]) {
+							retryTopicProducer, err := producer.New[UserLoggedInEvent](
+								"user-logged-in-rewards-processor-retry",
+								kpConfig
+							)
+							// handle error
+							dltProducer, err := producer.New[UserLoggedInEvent]("user-logged-in-rewards-processor-dlt", kpConfig)
+							// handle error
+							retryMw := retry.NewRetryMiddleware(retryTopicProducer, func(err error) {})
+							const retryCount := 3
+							dltMw := deadletter.NewDeadletterMiddleware(dltProducer, retryCount, func(err error) {})
+							return retryMw, dltMw
+						}
+						func getConsumerMiddleware() middlewares.KPMiddleware[kafka.Message] {...}
+					</code></pre>
+			</section>
+			<section>
+				<h3>Downstream service has backoff requirement</h3>
+				<aside class="notes">
+					Backoff middleware works with any type of message
+				</aside>
+				<pre class="fragment" data-id="code-animation"><code class="hljs" data-trim data-line-numbers="27-37|22">
+						package main
+
+						import (
+							"time"
+
+							"github.com/honestbank/kp"
+							"github.com/honestbank/kp/v2/config"
+							"github.com/honestbank/kp/v2/middlewares"
+							consumerMiddleware "github.com/honestbank/kp/v2/middlewares/consumer"
+							"github.com/honestbank/kp/v2/middlewares/retry"
+							"github.com/honestbank/kp/v2/middlewares/deadletter"
+							"github.com/honestbank/kp/v2/consumer"
+						)
+
+						func main() {
+							kpConfig := config.KPConfig{...}
+							processor := v2.New[kafka.Message]()
+							processor.AddMiddleware(getConsumerMiddleware())
+							retryMw, dltMw := getRetryAndDLTMiddleware()
+							processor.AddMiddleware(retryMw)
+							processor.AddMiddleware(dltMw)
+							kp.AddMiddleware(getBackoffMiddleware())
+							processor.Run(func(ctx context.Context, ev *kafka.Message) error {
+								fmt.Printf("processing message at: %s", time.Now().Format(time.RFC3339))
+							})
+						}
+						func getBackoffMiddleware() midddlewares.KPMiddleware[kafka.Message] {
+							exponent, maxBackoff := 1.5, 10
+							duration := time.Millisecond*200
+							backoffPolicy := backoff_policy.NewBackoff(
+								policies.GetExponentialPolicy(
+									exponent,
+									duration,
+									maxBackoffCount)
+							)
+							return backoff.NewBackoffMiddleware(backoffPolicy)
+						}
+						func getRetryAndDLTMiddleware() (middlewares.KPMiddleware[kafka.Message], middlewares.KPMiddleware[*kafka.Message]) {...}
+						func getConsumerMiddleware() middlewares.KPMiddleware[kafka.Message] {...}
+					</code></pre>
+			</section>
+			<section>
+				<h3>Measure how long it's taking to process messages</h3>
+				<aside class="notes">
+					We only use prometheus push gateway here, but you're encouraged to write your own middleware if you use something other than prometheus.
+				</aside>
+				<pre data-id="code-animation"><code class="hljs" data-trim data-line-numbers="23-27">
+						package main
+
+						import (
+							"time"
+
+							"github.com/honestbank/kp"
+							"github.com/honestbank/kp/v2/config"
+							"github.com/honestbank/kp/v2/middlewares"
+							consumerMiddleware "github.com/honestbank/kp/v2/middlewares/consumer"
+							"github.com/honestbank/kp/v2/middlewares/retry"
+							"github.com/honestbank/kp/v2/middlewares/deadletter"
+							"github.com/honestbank/kp/v2/consumer"
+						)
+
+						func main() {
+							kpConfig := config.KPConfig{...}
+							processor := v2.New[kafka.Message]()
+							processor.AddMiddleware(getConsumerMiddleware())
+							retryMw, dltMw := getRetryAndDLTMiddleware()
+							processor.AddMiddleware(retryMw)
+							processor.AddMiddleware(dltMw)
+							kp.AddMiddleware(getBackoffMiddleware())
+							pushURL := "http://path/to/push/gateway"
+							applicationName := "send-login-notification-worker"
+							kp.AddMiddleware(
+								measurement.NewMeasurementMiddleware(pushURL, applicationName)
+							)
+							processor.Run(func(ctx context.Context, ev *kafka.Message) error {
+								fmt.Printf("processing message at: %s", time.Now().Format(time.RFC3339))
+							})
+						}
+						func getBackoffMiddleware() midddlewares.KPMiddleware[kafka.Message] {...}
+						func getRetryAndDLTMiddleware() (middlewares.KPMiddleware[kafka.Message], middlewares.KPMiddleware[*kafka.Message]) {...}
+						func getConsumerMiddleware() middlewares.KPMiddleware[kafka.Message] {...}
+					</code></pre>
+			</section>
+			<section>
+				<h3>Let's add some traces</h3>
+				<pre data-id="code-animation"><code class="hljs" data-trim data-line-numbers="36-50|16|29-31">
+						package main
+
+						import (
+							"time"
+
+							"github.com/honestbank/kp"
+							"github.com/honestbank/kp/v2/config"
+							"github.com/honestbank/kp/v2/middlewares"
+							consumerMiddleware "github.com/honestbank/kp/v2/middlewares/consumer"
+							"github.com/honestbank/kp/v2/middlewares/retry"
+							"github.com/honestbank/kp/v2/middlewares/deadletter"
+							"github.com/honestbank/kp/v2/consumer"
+						)
+
+						func main() {
+							defer setupTracing()()
+							kpConfig := config.KPConfig{...}
+							processor := v2.New[kafka.Message]()
+							processor.AddMiddleware(getConsumerMiddleware())
+							retryMw, dltMw := getRetryAndDLTMiddleware()
+							processor.AddMiddleware(retryMw)
+							processor.AddMiddleware(dltMw)
+							kp.AddMiddleware(getBackoffMiddleware())
+							pushURL := "http://path/to/push/gateway"
+							applicationName := "send-login-notification-worker"
+							kp.AddMiddleware(
+								measurement.NewMeasurementMiddleware(pushURL, applicationName)
+							)
+							kp.AddMiddleware(
+								tracing.NewTracingMiddleware(otel.GetTracerProvider())
+							)
+							processor.Run(func(ctx context.Context, ev *kafka.Message) error {
+								fmt.Printf("processing message at: %s", time.Now().Format(time.RFC3339))
+							})
+						}
+						func setupTracing() func() {
+							exporter, err := jaeger.New(jaeger.WithCollectorEndpoint(jaeger.WithEndpoint(os.Getenv("COLLECTOR_URL"))))
+							// handle error
+							resc := resource.Default()
+							tp := trace.NewTracerProvider(
+								trace.WithBatcher(exporter),
+								trace.WithResource(resc),
+								trace.WithResource(resource.NewWithAttributes(semconv.SchemaURL, semconv.ServiceNameKey.String("send-login-notification-worker"))),
+							)
+							otel.SetTracerProvider(tp)
+							return func() {
+								exporter.Shutdown(context.Background())
+								tp.Shutdown(context.Background())
+							}
+						}
+						func getBackoffMiddleware() midddlewares.KPMiddleware[kafka.Message] {...}
+						func getRetryAndDLTMiddleware() (middlewares.KPMiddleware[kafka.Message], middlewares.KPMiddleware[*kafka.Message]) {...}
+						func getConsumerMiddleware() middlewares.KPMiddleware[kafka.Message] {...}
+					</code></pre>
+			</section>
+		</section>
+		<section>
+			<h3>Writing your own middleware</h3>
+			<aside class="notes">Let's write a log middleware</aside>
+			<pre data-id="code-animation"><code class="hljs" data-trim data-line-numbers="8|10-13">
+						package logMw
+
+						import (
+							"time"
+
+							"github.com/honestbank/kp/v2/middlewares"
+						)
+						type logMiddleware struct{}
+
+						func (l logMiddleware) Process(ctx context.Context, item T, next func(ctx context.Context, item T) error) error {
+							log.Println("message processed at", time.Now())
+							return next(ctx, item)
+						}
+
+						func NewLogMiddleware() middlewares.KPMiddleware[T] {
+							return &logMiddleware{}
+						}
+					</code></pre>
+		</section>
+		<section style="text-align: left;">
+			Q&A
+		</section>
+		<section style="text-align: left;" data-background-video="/images/end.mkv" data-background-video-muted="true">
+		</section>
+
+	</div>
+
+</div>
+
+<script src="dist/reveal.js"></script>
+<script src="plugin/zoom/zoom.js"></script>
+<script src="plugin/notes/notes.js"></script>
+<script src="plugin/search/search.js"></script>
+<script src="plugin/markdown/markdown.js"></script>
+<script src="plugin/highlight/highlight.js"></script>
+<script>
+
+	// Also available as an ES module, see:
+	// https://revealjs.com/initialization/
+	Reveal.initialize({
+		controls: true,
+		progress: true,
+		center: true,
+		hash: true,
+
+		// Learn about plugins: https://revealjs.com/plugins/
+		plugins: [RevealZoom, RevealNotes, RevealSearch, RevealMarkdown, RevealHighlight]
+	});
+
+</script>
+
+</body>
 </html>
