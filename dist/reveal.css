@@ -1,6 +1,6 @@
 /*!
 * reveal.js 4.4.0
-* https://revealjs.com
+* https://cyberhck.github.io/kp-presentation
 * MIT licensed
 *
 * Copyright (C) 2011-2022 Hakim El Hattab, https://hakim.se
