@@ -48,7 +48,7 @@
 			<small>github.com/cyberhck</small>
 			<small>twitter.com/cyb3rhck</small>
 			<br>
-			<small>random@cyberhck.dev</small>
+			<small>nishchal@honestbank.com</small>
 		</section>
 
 		<section>
@@ -67,10 +67,11 @@
 				Speak slow
 			</aside>
 			<ul>
-				<li class="fragment">Instrumentation</li>
-				<li class="fragment">Tracing?</li>
 				<li class="fragment">Retries</li>
 				<li class="fragment">Deadletters</li>
+				<li class="fragment">Logs</li>
+				<li class="fragment">Instrumentation</li>
+				<li class="fragment">Tracing?</li>
 				<li class="fragment">Backoffs</li>
 				<li class="fragment">Heartbeat?</li>
 				<li class="fragment">Parallelization?</li>
@@ -98,6 +99,7 @@
 		</section>
 		<section>
 			<h1>Usage</h1>
+			<aside class="notes">cgo is required to use this because confluent-kafka-go requires cgo.</aside>
 		</section>
 		<section data-auto-animate>
 			<section data-auto-animate>
@@ -131,6 +133,7 @@
 						import (
 							"time"
 
+							"github.com/confluentinc/confluent-kafka-go/kafka"
 							"github.com/honestbank/kp"
 							"github.com/honestbank/kp/v2/config"
 						)
@@ -401,6 +404,56 @@
 							return &logMiddleware{}
 						}
 					</code></pre>
+		</section>
+		<section>
+			<h2>Writing heartbeat middleware</h2>
+			<pre data-id="code-animation"><code class="hljs" data-trim data-line-numbers="8|10-13">
+						package heartbeatMiddleware
+
+						import (
+							"time"
+
+							"github.com/honestbank/kp/v2/middlewares"
+						)
+						type heartbeatMiddleware struct{}
+
+						func (l heartbeatMw) Process(ctx context.Context, item T, next func(ctx context.Context, item T) error) error {
+							// send heartbeat to your monitoring system.
+							return next(ctx, item)
+						}
+
+						func NewHeartbeatMiddleware() middlewares.KPMiddleware[T] {
+							return &heartbeatMiddleware{}
+						}
+					</code></pre>
+			<p class="fragment">should come <strong>before</strong> consumer middleware</p>
+		</section>
+		<section>
+			<h2>Pausing execution</h2>
+			<pre data-id="code-animation"><code class="hljs" data-trim data-line-numbers="8|10-13">
+						package pauseMiddleware
+
+						import (
+							"time"
+
+							"github.com/honestbank/kp/v2/middlewares"
+						)
+						type pauseMiddleware struct{}
+
+						func (l pauseMiddleware) Process(ctx context.Context, item T, next func(ctx context.Context, item T) error) error {
+							if shouldPause() {
+								time.Sleep(time.Second * 1)
+								return nil
+							}
+
+							return next(ctx, item)
+						}
+
+						func NewPauseMiddleware() middlewares.KPMiddleware[T] {
+							return &pauseMiddleware{}
+						}
+					</code></pre>
+			<p class="fragment">should come <strong>before</strong> consumer middleware</p>
 		</section>
 		<section style="text-align: left;">
 			Q&A
