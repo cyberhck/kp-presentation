@@ -44,8 +44,8 @@
 		</section>
 		<section>
 			<h2>About myself</h2>
-			<p>Backend engineer @ Honest</p>
-			<small>github.com/cyberhck</small>
+			<p>Backend Engineer @ Honest</p>
+			<small>github.com/cyberhck</small> |
 			<small>twitter.com/cyb3rhck</small>
 			<br>
 			<small>nishchal@honestbank.com</small>
@@ -54,6 +54,10 @@
 		<section>
 			<h2>Objectives</h2>
 			<aside class="notes">
+				<ul>
+					<li>Create production ready consumer</li>
+					<li>Keep it dead simple</li>
+				</ul>
 				Now production ready is very subjective, you'll have different requirements, but we'll show you as close to as we can get.
 			</aside>
 			<p>
@@ -75,7 +79,12 @@
 				<li class="fragment">Backoffs</li>
 				<li class="fragment">Heartbeat?</li>
 				<li class="fragment">Parallelization?</li>
-				<li class="fragment">...</li>
+				<li class="fragment">
+					...
+					<aside class="notes fragment">
+						does anyone have any idea on what else makes something production ready?
+					</aside>
+				</li>
 			</ul>
 		</section>
 
@@ -85,16 +94,16 @@
 				<aside class="notes">
 					Speak slow
 				</aside>
-				<p>The core of kp is basically a middleware processing pipeline.</p>
+				<p>The core of KP is basically a middleware processing pipeline.</p>
 			</section>
 			<section>
-				<p>Each middleware instance has a responsibility.</p>
+				<p>Each middleware instance should have a single responsibility.</p>
 			</section>
 			<section>
-				<p>You configure how they're supposed to work.</p>
+				<p>Middleware architecture provides maximum customizablity.</p>
 			</section>
 			<section>
-				<p>KP comes with handful of middleware out of the box, but you're <strong>encouraged</strong> to write your own if you need to.</p>
+				<p>KP comes a with handful of middleware out of the box, but you're <strong>encouraged</strong> to write your own if you need to.</p>
 			</section>
 		</section>
 		<section>
