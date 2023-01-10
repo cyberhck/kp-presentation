@@ -437,35 +437,37 @@
 		<section>
 			<h2>Pausing execution</h2>
 			<pre data-id="code-animation"><code class="hljs" data-trim data-line-numbers="8|10-17">
-						package pauseMiddleware
+				package pauseMiddleware
 
-						import (
-							"time"
+				import (
+					"time"
 
-							"github.com/honestbank/kp/v2/middlewares"
-						)
-						type pauseMiddleware struct{}
+					"github.com/honestbank/kp/v2/middlewares"
+				)
+				type pauseMiddleware struct{}
 
-						func (l pauseMiddleware) Process(ctx context.Context, item T, next func(ctx context.Context, item T) error) error {
-							if shouldPause() {
-								time.Sleep(time.Second * 1)
-								return nil
-							}
+				func (l pauseMiddleware) Process(ctx context.Context, item T, next func(ctx context.Context, item T) error) error {
+					if shouldPause() {
+						time.Sleep(time.Second * 1)
+						return nil
+					}
 
-							return next(ctx, item)
-						}
+					return next(ctx, item)
+				}
 
-						func NewPauseMiddleware() middlewares.KPMiddleware[T] {
-							return &pauseMiddleware{}
-						}
-					</code></pre>
+				func NewPauseMiddleware() middlewares.KPMiddleware[T] {
+					return &pauseMiddleware{}
+				}
+			</code></pre>
 			<p class="fragment">should come <strong>before</strong> consumer middleware</p>
 		</section>
 		<section style="text-align: left;">
 			Q&A
 		</section>
-		<section>
-			<iframe height="500" width="1024" src="https://honest.freshteam.com/jobs" frameborder="0"></iframe>
+		<section style="text-align: left;" data-background-image="./images/hiring.svg" data-background-size="100%" data-background-transition="zoom">
+			<div style="margin-top: 120px; display: flex; justify-content: end; width:1070px;" data-auto-animate-delay="2s">
+				<img height="250px;" src="./images/jobs-page-qr.svg"/>
+			</div>
 		</section>
 		<section style="text-align: left;" data-background-video="./images/end.mkv" data-background-video-muted="true">
 		</section>
