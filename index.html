@@ -45,34 +45,32 @@
 		<section>
 			<h2>About myself</h2>
 			<p>Backend Engineer @ Honest</p>
-			<small>github.com/cyberhck</small> |
-			<small>twitter.com/cyb3rhck</small>
+			<small><img style="margin: 3px 0 0;" width="24" height="24" src="./images/github.png"/> github.com/cyberhck</small> <small>&#124;</small>
+			<small><img style="margin: 3px 0 0;" width="24" height="24" src="./images/twitter.png"/> twitter.com/cyb3rhck</small>
 			<br>
-			<small>nishchal@honestbank.com</small>
+			<small><img style="margin: 3px 0 0;" width="24" height="24" src="./images/mail.png"/> nishchal@honestbank.com</small>
 		</section>
 
 		<section>
 			<h2>Objectives</h2>
 			<aside class="notes">
-				<ul>
-					<li>Create production ready consumer</li>
-					<li>Keep it dead simple</li>
-				</ul>
 				Now production ready is very subjective, you'll have different requirements, but we'll show you as close to as we can get.
 			</aside>
-			<p>
-				We'll try and create a production* ready consumer while keeping the code <strong>dead simple</strong>.
-			</p>
+			<ul>
+				<li>Creating production* ready consumer</li>
+				<li>Keeping it dead simple</li>
+			</ul>
 		</section>
 
 		<section>
 			<h2>What makes a consumer production ready?</h2>
 			<aside class="notes">
-				Speak slow
+				Speak slow <br>
+				does anyone have any idea on what else makes something production ready?
 			</aside>
 			<ul>
 				<li class="fragment">Retries</li>
-				<li class="fragment">Deadletters</li>
+				<li class="fragment">Dead-letters</li>
 				<li class="fragment">Logs</li>
 				<li class="fragment">Instrumentation</li>
 				<li class="fragment">Tracing?</li>
@@ -81,9 +79,6 @@
 				<li class="fragment">Parallelization?</li>
 				<li class="fragment">
 					...
-					<aside class="notes fragment">
-						does anyone have any idea on what else makes something production ready?
-					</aside>
 				</li>
 			</ul>
 		</section>
@@ -200,6 +195,8 @@
 				<h3>Business needs you to add retries and deadletters</h3>
 				<aside class="notes">
 					Order of the middlewares are extremely important
+					<br>
+					also explain how retries are actually working, the fact that they're being written to retry-topic.
 				</aside>
 				<pre class="fragment" data-id="code-animation"><code class="hljs" data-trim data-line-numbers="26-38|19-21">
 						package main
@@ -246,7 +243,7 @@
 			<section>
 				<h3>Downstream service has backoff requirement</h3>
 				<aside class="notes">
-					Backoff middleware works with any type of message
+					Backoff middleware works with any type of message, but it doesn't backoff individual message. It backs off calling the underlying service.
 				</aside>
 				<pre class="fragment" data-id="code-animation"><code class="hljs" data-trim data-line-numbers="27-37|22">
 						package main
@@ -466,6 +463,9 @@
 		</section>
 		<section style="text-align: left;">
 			Q&A
+		</section>
+		<section>
+			<iframe height="500" width="1024" src="https://honest.freshteam.com/jobs" frameborder="0"></iframe>
 		</section>
 		<section style="text-align: left;" data-background-video="./images/end.mkv" data-background-video-muted="true">
 		</section>
